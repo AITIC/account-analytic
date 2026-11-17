@@ -13,8 +13,13 @@ def migrate(cr, version):
         return
     cr.execute("""
         DELETE FROM ir_ui_view
-        WHERE module = 'stock_analytic'
-          AND arch_db::text LIKE '%analytic_account_id%'
+        WHERE id IN (
+            SELECT imd.res_id
+            FROM ir_model_data imd
+            WHERE imd.model = 'ir.ui.view'
+              AND imd.module = 'stock_analytic'
+        )
+        AND arch_db::text LIKE '%analytic_account_id%'
     """)
     deleted = cr.rowcount
     if deleted:
